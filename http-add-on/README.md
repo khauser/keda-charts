@@ -87,8 +87,6 @@ their default values.
 | `additionalLabels` | object | `{}` | Additional labels to be applied to installed resources. Note that not all resources will receive these labels. |
 | `crds.install` | bool | `true` | Whether to install the `HTTPScaledObject` [`CustomResourceDefinition`](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) |
 | `images.interceptor` | string | `"ghcr.io/kedacore/http-add-on-interceptor"` | Image name for the interceptor image component |
-| `images.kubeRbacProxy.name` | string | `"gcr.io/kubebuilder/kube-rbac-proxy"` | Image name for the Kube RBAC Proxy image component |
-| `images.kubeRbacProxy.tag` | string | `"v0.13.0"` | Image tag for the Kube RBAC Proxy image component |
 | `images.operator` | string | `"ghcr.io/kedacore/http-add-on-operator"` | Image name for the operator image component |
 | `images.scaler` | string | `"ghcr.io/kedacore/http-add-on-scaler"` | Image name for the scaler image component |
 | `images.tag` | string | `""` | Image tag for the http add on. This tag is applied to the images listed in `images.operator`, `images.interceptor`, and `images.scaler`. Optional, given app version of Helm chart is used by default |
@@ -97,7 +95,6 @@ their default values.
 | `logging.interceptor.stackTracesEnabled` | bool | `false` | Display stack traces in the logs |
 | `logging.interceptor.timeEncoding` | string | `"rfc3339"` | Logging time encoding for KEDA http-add-on Interceptor. allowed values are `epoch`, `millis`, `nano`, `iso8601`, `rfc3339` or `rfc3339nano` |
 | `logging.operator.format` | string | `"console"` | Logging format for KEDA http-add-on operator. allowed values: `json` or `console` |
-| `logging.operator.kubeRbacProxy.level` | int | `10` | Logging level for KEDA http-add-on operator rbac proxy allowed values: `0` for info, `4` for debug, or an integer value greater than 0 |
 | `logging.operator.level` | string | `"info"` | Logging level for KEDA http-add-on operator. allowed values: `debug`, `info`, `error`, or an integer value greater than 0, specified as string |
 | `logging.operator.stackTracesEnabled` | bool | `false` | Display stack traces in the logs |
 | `logging.operator.timeEncoding` | string | `"rfc3339"` | Logging time encoding for KEDA http-add-on operator. allowed values are `epoch`, `millis`, `nano`, `iso8601`, `rfc3339` or `rfc3339nano` |
@@ -106,6 +103,12 @@ their default values.
 | `logging.scaler.stackTracesEnabled` | bool | `false` | Display stack traces in the logs |
 | `logging.scaler.timeEncoding` | string | `"rfc3339"` | Logging time encoding for KEDA http-add-on Scaler. allowed values are `epoch`, `millis`, `nano`, `iso8601`, `rfc3339` or `rfc3339nano` |
 | `podSecurityContext` | object | [See below](#KEDA-is-secure-by-default) | [Pod security context] for all pods |
+| `profiling.interceptor.enabled` | bool | `false` | Enable profiling for KEDA http-add-on Interceptor |
+| `profiling.interceptor.port` | int | `8086` | Expose profiling on a specific port |
+| `profiling.operator.enabled` | bool | `false` | Enable profiling for KEDA http-add-on Operator |
+| `profiling.operator.port` | int | `8085` | Expose profiling on a specific port |
+| `profiling.scaler.enabled` | bool | `false` | Enable profiling for KEDA http-add-on Scaler |
+| `profiling.scaler.port` | int | `8087` | Expose profiling on a specific port |
 | `rbac.aggregateToDefaultRoles` | bool | `false` | Install aggregate roles for edit and view |
 | `securityContext` | object | [See below](#KEDA-is-secure-by-default) | [Security context] for all containers |
 
@@ -114,10 +117,8 @@ their default values.
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `operator.affinity` | object | `{}` | Affinity for pod scheduling ([docs](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/)) |
-| `operator.extraEnvs` | object | `{}` | Additional ENV vars to be applied to the operator container |
+| `operator.extraEnvs` | object | `{}` | Extra environment variables to set (key-value map with "ENV name":"value") |
 | `operator.imagePullSecrets` | list | `[]` | The image pull secrets for the operator component |
-| `operator.kubeRbacProxy.resources.limits` | object | `{"cpu":"300m","memory":"200Mi"}` | The CPU/memory resource limit for the operator component's kube rbac proxy |
-| `operator.kubeRbacProxy.resources.requests` | object | `{"cpu":"10m","memory":"20Mi"}` | The CPU/memory resource request for the operator component's kube rbac proxy |
 | `operator.nodeSelector` | object | `{}` | Node selector for pod scheduling ([docs](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)) |
 | `operator.podAnnotations` | object | `{}` | Annotations to be added to the operator pods |
 | `operator.port` | int | `8443` | The port for the operator main server to run on |
@@ -133,7 +134,7 @@ their default values.
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `scaler.affinity` | object | `{}` | Affinity for pod scheduling ([docs](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/)) |
-| `scaler.extraEnvs` | object | `{}` | Additional ENV vars to be applied to the scaler container |
+| `scaler.extraEnvs` | object | `{}` | Extra environment variables to set (key-value map with "ENV name":"value") |
 | `scaler.grpcPort` | int | `9090` | The port for the scaler's gRPC server. This is the server that KEDA will send scaling requests to. |
 | `scaler.imagePullSecrets` | list | `[]` | The image pull secrets for the scaler component |
 | `scaler.nodeSelector` | object | `{}` | Node selector for pod scheduling ([docs](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)) |
@@ -158,7 +159,7 @@ their default values.
 | `interceptor.affinity` | object | `{}` | Affinity for pod scheduling ([docs](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/)) |
 | `interceptor.endpointsCachePollingIntervalMS` | int | `250` | How often (in milliseconds) the interceptor does a full refresh of its endpoints cache. The interceptor will also use Kubernetes events to stay up-to-date with the endpoints cache changes. This duration is the maximum time it will take to see changes to the endpoints. |
 | `interceptor.expectContinueTimeout` | string | `"1s"` | Special handling for responses with "Expect: 100-continue" response headers. see https://pkg.go.dev/net/http#Transport under the 'ExpectContinueTimeout' field for more details |
-| `interceptor.extraEnvs` | object | `{}` | Additional ENV vars to be applied to the interceptor container |
+| `interceptor.extraEnvs` | object | `{}` | Extra environment variables to set (key-value map with "ENV name":"value") |
 | `interceptor.forceHTTP2` | bool | `false` | Whether or not the interceptor should force requests to use HTTP/2 |
 | `interceptor.idleConnTimeout` | string | `"90s"` | The timeout after which any idle connection is closed and removed from the interceptor's in-memory connection pool. |
 | `interceptor.imagePullSecrets` | list | `[]` | The image pull secrets for the interceptor component |
@@ -206,7 +207,7 @@ helm install http-add-on kedacore/keda-add-ons-http --namespace keda -f values.y
 
 ## KEDA is secure by default
 
-Our default configuration strives to be as secure as possible. Because of that, KEDA will run as non-root and be secure-by-default. You can define global securityContext for all components or switch to granular mode and define securityContext for operator, kuberbacproxy, scaler, and interceptor:
+Our default configuration strives to be as secure as possible. Because of that, KEDA will run as non-root and be secure-by-default. You can define global securityContext for all components or switch to granular mode and define securityContext for operator, scaler, and interceptor:
 ```yaml
 securityContext:
   allowPrivilegeEscalation: false
@@ -218,14 +219,6 @@ securityContext:
   # runAsUser: 1000
   # runAsGroup: 1000
   # operator:
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # allowPrivilegeEscalation: false
-    # readOnlyRootFilesystem: true
-    # seccompProfile:
-    #   type: RuntimeDefault
-  # kuberbacproxy:
     # capabilities:
     #   drop:
     #   - ALL
