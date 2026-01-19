@@ -121,7 +121,7 @@ their default values.
 | `operator.imagePullSecrets` | list | `[]` | The image pull secrets for the operator component |
 | `operator.nodeSelector` | object | `{}` | Node selector for pod scheduling ([docs](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)) |
 | `operator.podAnnotations` | object | `{}` | Annotations to be added to the operator pods |
-| `operator.port` | int | `8443` | The port for the operator main server to run on |
+| `operator.port` | int | `8080` | The port for the operator main server to run on |
 | `operator.pullPolicy` | string | `"Always"` | The image pull policy for the operator component |
 | `operator.replicas` | int | `1` | Number of replicas, oerator k8s resources will not be installed if this is set to 0 |
 | `operator.resources.limits` | object | `{"cpu":0.5,"memory":"64Mi"}` | The CPU/memory resource limit for the operator component |

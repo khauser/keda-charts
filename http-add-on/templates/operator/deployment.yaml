@@ -40,7 +40,7 @@ spec:
       {{- end }}
       containers:
       - args:
-        - --metrics-bind-address=0.0.0.0:8443
+        - --metrics-bind-address=0.0.0.0:8080
         - --leader-elect
         - --zap-log-level={{ .Values.logging.operator.level }}
         - --zap-time-encoding={{ .Values.logging.operator.timeEncoding }}
@@ -69,7 +69,7 @@ spec:
         {{- end }}
         ports:
         - name: metrics
-          containerPort: 8443
+          containerPort: 8080
         - name: probes
           containerPort: 8081
         livenessProbe:

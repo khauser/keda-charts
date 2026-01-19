@@ -67,7 +67,7 @@ operator:
       cpu: 250m
       memory: 20Mi
   # -- The port for the operator main server to run on
-  port: 8443
+  port: 8080
   # -- Node selector for pod scheduling ([docs](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/))
   nodeSelector: {}
   # -- Tolerations for pod scheduling ([docs](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/))
