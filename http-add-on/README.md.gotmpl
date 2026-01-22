@@ -137,7 +137,7 @@ helm install http-add-on kedacore/keda-add-ons-http --namespace keda -f values.y
 
 ## KEDA is secure by default
 
-Our default configuration strives to be as secure as possible. Because of that, KEDA will run as non-root and be secure-by-default. You can define global securityContext for all components or switch to granular mode and define securityContext for operator, kuberbacproxy, scaler, and interceptor:
+Our default configuration strives to be as secure as possible. Because of that, KEDA will run as non-root and be secure-by-default. You can define global securityContext for all components or switch to granular mode and define securityContext for operator, scaler, and interceptor:
 ```yaml
 securityContext:
   allowPrivilegeEscalation: false
@@ -149,14 +149,6 @@ securityContext:
   # runAsUser: 1000
   # runAsGroup: 1000
   # operator:
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # allowPrivilegeEscalation: false
-    # readOnlyRootFilesystem: true
-    # seccompProfile:
-    #   type: RuntimeDefault
-  # kuberbacproxy:
     # capabilities:
     #   drop:
     #   - ALL
